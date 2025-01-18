@@ -1,32 +1,36 @@
-import mongoose, {Mongoose} from "mongoose";
-import { cache } from "react";
+import mongoose, { Mongoose } from 'mongoose';
 
 const MONGODB_URL = process.env.MONGODB_URL;
 
-
 interface MongooseConnection {
-    conn: Mongoose | null;
-    promise: Promise<Mongoose> | null;
+  conn: Mongoose | null;
+  promise: Promise<Mongoose> | null;
 }
 
-
-let cached: MongooseConnection = (global as any).mongoose
-
-if(!cached){
-    cached = (global as any).mongoose = {
-        conn: null, promise: null
-    }
+// Define a type for the global object
+interface CustomNodeJsGlobal {
+  mongoose: MongooseConnection;
 }
 
-export const connectToDatabase = async () =>{
-    if(cached.conn) return cached.conn;
+// Cast `global` to your custom type
+declare const global: CustomNodeJsGlobal;
 
-    if(!MONGODB_URL) throw new Error('Missing MONGODB_URL');
+// Initialize the cached connection
+const cached: MongooseConnection = global.mongoose || { conn: null, promise: null };
 
-    cached.promise = cached.promise || mongoose.connect(MONGODB_URL, {dbName: 'imaginify2.0', bufferCommands:false})
+export const connectToDatabase = async () => {
+  if (cached.conn) return cached.conn;
 
-    cached.conn = await cached.promise;
+  if (!MONGODB_URL) throw new Error('Missing MONGODB_URL');
 
-    return cached.conn
-}
+  cached.promise =
+    cached.promise ||
+    mongoose.connect(MONGODB_URL, {
+      dbName: 'imaginify',
+      bufferCommands: false,
+    });
 
+  cached.conn = await cached.promise;
+
+  return cached.conn;
+};

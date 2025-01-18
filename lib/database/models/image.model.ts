@@ -1,7 +1,7 @@
 //image transformation model
 
 
-import { transformationTypes } from "@/constants"
+//import { transformationTypes } from "@/constants"
 import {model, models, Schema} from "mongoose"
 
 export interface IImage extends Document {
